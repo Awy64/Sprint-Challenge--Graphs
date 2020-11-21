@@ -5,6 +5,7 @@ from world import World
 import random
 from ast import literal_eval
 
+from collections import deque
 # Load world
 world = World()
 
@@ -28,6 +29,38 @@ player = Player(world.starting_room)
 # Fill this out with directions to walk
 # traversal_path = ['n', 'n']
 traversal_path = []
+visited = {}
+reverse = deque()
+prev_room = {"n": "s", "s": "n", "e": "w", "w": "e"}
+prev_room_id = None
+
+curr_room = player.current_room.id
+while len(visited) < len(room_graph):
+  curr_room = player.current_room.id
+  if curr_room not in visited:
+    exits = player.current_room.get_exits()
+    visited[curr_room] = {}
+    for i in exits:
+      visited[curr_room][i] = None
+    if reverse:
+      visited[curr_room][reverse[-1]] = prev_room_id
+  tic = 0
+  for i in visited[curr_room]:
+    if visited[curr_room][i] == None:
+      reverse.append(prev_room[i])
+      prev_room_id = curr_room
+      player.travel(i)
+      traversal_path.append(i)
+      visited[curr_room][i] = player.current_room.id
+      break
+    else:
+      tic += 1
+      if tic == len(visited[curr_room]):
+        next_move = reverse.pop()
+        player.travel(next_move)
+        traversal_path.append(next_move)
+  
+
 
 
 
@@ -51,12 +84,12 @@ else:
 #######
 # UNCOMMENT TO WALK AROUND
 #######
-player.current_room.print_room_description(player)
-while True:
-    cmds = input("-> ").lower().split(" ")
-    if cmds[0] in ["n", "s", "e", "w"]:
-        player.travel(cmds[0], True)
-    elif cmds[0] == "q":
-        break
-    else:
-        print("I did not understand that command.")
+# player.current_room.print_room_description(player)
+# while True:
+#     cmds = input("-> ").lower().split(" ")
+#     if cmds[0] in ["n", "s", "e", "w"]:
+#         player.travel(cmds[0], True)
+#     elif cmds[0] == "q":
+#         break
+#     else:
+#         print("I did not understand that command.")
